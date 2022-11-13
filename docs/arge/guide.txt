@@ -1,0 +1,38 @@
+1.Download Reference Manuals from STMicroelectronics site
+2. To understand the basics, download a book authored by Geoffrey Brown titled "Discovering the STM32 Microcontroller"
+3. Download Keil ARM IDE.You can go for other IDEs as well
+4.Download packages necessary for the board you have purchased.For e.g. Value line Discovery Packages etc.
+5. Download a Template for the project which has essential files and libraries needed for the project
+6.Watch Tutorials on YouTube for basic flow of Keil IDE and STM32 Microcontrollers
+7.Explore the files that come in the packages for deeper knowledge
+8.Start with something simple like blinking LEDs and move up through GPIO,USART,Timers,Interrupts,SPI,I2C,ADC,DAC etc.
+
+|-------------------------------------------------------------------------------------------------------------------------------|
+|																																|
+|-------------------------------------------------------------------------------------------------------------------------------|
+
+(https://www.quora.com/How-difficult-is-it-to-build-a-flight-controller-from-scratch-and-programming-it-our-own)
+How difficult is it to build a flight controller from scratch and programming it our own?
+I have done this before, and I wouldn't recommend it. I have a great number of mental scars from that period in my life.
+
+But, it is a great challenge and very educational. So here's a few hints on doing it:
+- brush up on your control theory, you need to understand closed-loop control; and the basic concepts behind Observability and Controllability . You don't necessarily need to understand things like the Nyquist stability criterion, but it'll greatly help you understand why you're not getting stability.
+- get real comfortable with Quaternions, this is the recommended method of dealing with rotation angles. You don't necessarily need to understand the theory in detail, but you at least need to know the general rules for manipulating quaternions (including renormalization and why it's important), and also how to back out Euler angles from a quaternion. Understanding the Direction Cosine Matrix is also useful.
+- it is absolutely critical that you understand PID control loops in depth, including issues such as Integral windup which is a major cause of problems in quadcopters, particularly during take-off, and navigation; and also how to tune PID loops such as Ziegler–Nichols method (but actually, eventually you get good enough to do PID tuning by instinct)
+- you'll be making use of a lot of signal filtering, learn about the different methods of digital filtering, ranging from simple Single-pole recursive filters, up to Extended Kalman filter. You can get away without Kalman filtering, we've managed it in the past, but if you can wrap your head around Kalman filtering, your life would become much easier.
+- you need to understand how to deal with real-time information and processing. If you can use an RTOS, that's great. If you can't, then it's still possible with interrupt loops with different priority levels.
+
+My advice on the hardware is: don't use an 8-bit microcontroller, particularly not one with 8kb of RAM, and particularly not one that's limited to 16MHz clock rate. You're going to be dealing with a lot of calculations, and 8-bit at 16MHz is going to severely limit your performance. It's certainly doable, but if you have the opportunity, you should select a more appropriate microcontroller.
+
+8kb of RAM is too limiting, again, it's probably enough for a simple system, but you'll wish you had more RAM when you start looking at more complex filtering that you'll need. Things like communications protocols (particularly MAVLink) as well as navigation waypoints both take up a lot of extra RAM too. I highly recommend an ARM Cortex-M3 or M4 with at least 32kb RAM, 128kb flash, and at least 48MHz clock speed, and preferably with DMA. ARM Cortex-M3/4 have a great NVIC system, which is essential for having good control over interrupts at different priority levels if you're not using an RTOS.
+
+When I built mine, it used a Cortex-M3 running at 72MHz, with 32kb flash, 8kb RAM. the 72MHz clock speed was great - it gave plenty of processing power to do all the calculations needed; but the 32kb flash was nowhere near enough: I could barely fit all the low-level control, and I had to off-load GPS navigation to a separate processor. I'd estimate you'd need somewhere between 64kb and 128kb of flash for good implementation of a standard set of features (you'd need more if you wanted fancy things like autonomous navigation and obstacle avoidance, etc.). 8kb of RAM was workable for basic flying, but I had to reduce a lot of my filters to save on memory, and certainly wouldn't have had been enough if I had GPS navigation and telemetry on the same chip.
+
+Extra hints:
+- allocate several months of full-time work, this is not an easy task
+- purchase many many extra propeller blades. You will crash A LOT during development. In fact, you should invest in building a tether system for your craft, so that it can safely be tested without risk of crashing and injuring people.
+- invest in a wireless communications method early on so that you can live-tune your PID loops and filter parameters while the craft is operational. You will want to kill yourself if you had to re-flash your craft every time you wanted to tune a parameter
+- don't listen to what everyone else has to say on the matter of loop rates, you'll want at least 200Hz control and sensor loops; in fact, you should aim for 1kHz loop rates, you'll suddenly find performance much better. 1kHz should be easily achievable with a Cortex-M4. It's challenging, but still doable on a Cortex-M3, if you optimize and discretize your calculations.
+- check out the Quake Fast inverse square root function. You'll be doing a hell of a lot of normalization, as well as Euclidean distance calculations if you do GPS navigation. Not only do these calculations need to be very fast, it is also ok in most cases to not have a perfectly accurate square-root. Therefore the famous Quake Fast Inverse Square Root function will help you speed up your calculations significantly (even on a Cortex-M4 with FPU), without significant degradation of accuracy.
+
+Good luck on your project.
