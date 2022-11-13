@@ -1,16 +1,18 @@
-#define CH1 PB1
+/*
+  FS-IA6B 6 kanallı 2.4gHz alıcı test kodu
+*/
+
+// Aşağıdaki kod kullanacağımız kanalları STM32 geliştirici kartındaki uygun pinlere atama yapıyor.
+#define CH1 PB1                                                                           
 #define CH2 PB0
 #define CH3 PA7
 #define CH4 PA6
 #define CH5 PA3
 #define CH6 PA2
 
-int ch1Value;
-int ch2Value;
-int ch3Value;
-int ch4Value;
-int ch5Value;
-int ch6Value;
+// Kanallardan gelen değerlerin integer atamaları.
+int ch1Value, ch2Value, ch3Value, ch4Value, ch5Value, ch6Value;
+
 
 int readChannel(int channelInput, int minLimit, int maxLimit, int defaultValue){
   int ch = pulseIn(channelInput, HIGH, 30000);
