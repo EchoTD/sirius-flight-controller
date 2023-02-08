@@ -10,6 +10,16 @@ VCC   -> No more than 3.6 volts
 GND   -> GND
 */
 
+/* YAPILACAKLAR LİSTESİ, EKLENMESİ GEREKEN ÖZELLİKLER
+-Arm switch
+-Otopilota geçiş switch
+-Failsafe
+-Troubleshooting için bloklar
+
+
+*/
+
+
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
