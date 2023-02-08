@@ -15,6 +15,7 @@ GND   -> GND
 -Otopilota geçiş switch
 -Failsafe
 -Troubleshooting için bloklar
+-Buzzer ekle
 
 
 */
@@ -24,11 +25,12 @@ GND   -> GND
 #include <nRF24L01.h>
 #include <RF24.h>
 
+int i = 0;
+
 // PA10, PA11, PA12, PA13 girişleri analog joystick girişleri
 // Dijital pin girişleri:
 #define button1 PA14
 #define button2 PA15
-
 
 // Radyo setup komutları:
 #define CE PA0
@@ -44,7 +46,8 @@ struct payload{
   byte roll;
   byte buttonState1;
   byte buttonState2;
-}
+};
+
 struct payload data;
 
 void getInputSignal(){
@@ -84,11 +87,11 @@ void setup() {
   // Pin modları ayarlama
   pinMode(button1, INPUT);
   pinMode(button2, INPUT);
-  pinmode(PC13, OUTPUT); // built-in led
+  pinMode(PC13, OUTPUT); // built-in led
 
   resData();
 
-  Serial.println("Setup is done! Going into loop...")
+  Serial.println("Setup is done! Going into loop...");
   
   // Loop döngüsüne girmeden dışarıya bilgi vermek amaçlı
   for(i = 0; i < 3; i++){
