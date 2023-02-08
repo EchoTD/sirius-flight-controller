@@ -79,9 +79,9 @@ void setup() {
   // Radyo çalıştırma ve ayarlama komutları, daha fazlası için: https://nrf24.github.io/RF24/classRF24.html
   radio.begin();
   radio.openWritingPipe(address);
-  radio.setAutoAck(false);
+  radio.setAutoAck(false);            // https://nrf24.github.io/RF24/classRF24.html#aec71746d59da978bcbb975167886a2cc
   radio.setPALevel(RF24_PA_MIN);
-  radio.stopListening();
+  radio.stopListening();              // Verici olduğu için alma fonksiyonunu kapatıyor
   delay(100);
 
   // Pin modları ayarlama
