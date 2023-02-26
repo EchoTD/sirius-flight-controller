@@ -27,10 +27,8 @@ GND   -> GND
 
 int i = 0;
 
-// PA10, PA11, PA12, PA13 girişleri analog joystick girişleri
-// Dijital pin girişleri:
-#define button1 PA14
-#define button2 PA15
+unsigned long lastRecieveTime = 0;
+unsigned long currentTime = 0;
 
 // Radyo setup komutları:
 #define CE PA0
@@ -38,7 +36,7 @@ int i = 0;
 RF24 radio(CE, CSN);
 const byte address[6] = "00001"; // !!! Sonra değiştir bunu
  
-// Gönderilecek olan verinin kodu
+// Alınacak olan verinin kodu
 struct payload{
   byte thrust;
   byte yaw;
@@ -49,15 +47,6 @@ struct payload{
 };
 
 struct payload data;
-
-void getInputSignal(){
-  // Analog sinyaller
-  data.thrust = map(analogRead(PB0), 0, 1023, 0, 255);
-  data.yaw = map(analogRead(PB1), 0, 1023, 0, 255);
-  data.pitch = map(analogRead(PB14), 0, 1023, 0, 255);
-  data.roll = map(analogRead(PB13), 0, 1023, 0, 255);
-
-}
 
 void resData(){
   // Başlangıç değerleri atama
@@ -75,10 +64,10 @@ void setup() {
   
   // Radyo çalıştırma ve ayarlama komutları, daha fazlası için: https://nrf24.github.io/RF24/classRF24.html
   radio.begin();
-  radio.openWritingPipe(address);
-  radio.stopListening();              // Verici olduğu için alma fonksiyonunu kapatıyor
+  radio.openReadingPipe(0, address);
+  radio.startListening();              
   delay(100);
-
+  
   // Pin modları ayarlama
 //  pinMode(button1, INPUT);
 //  pinMode(button2, INPUT);
@@ -91,17 +80,35 @@ void setup() {
   // Loop döngüsüne girmeden dışarıya bilgi vermek amaçlı
   for(i = 0; i < 3; i++){
     digitalWrite(PC13, HIGH);
+    Serial.println("Setup is done! Going into loop...");
     delay(500);
     digitalWrite(PC13, LOW);
+    Serial.println("Setup is done! Going into loop...");
     delay(500);
   }
 }
  
 void loop() {
-  // Kumanda üzerindeki komponentlerin sinyallerini çağır
-  getInputSignal();
+  currentTime = millis();
+  
+  // Basit bir failsafe
+  if(currentTime - lastRecieveTime > 1000){
+    resData();
+    }
 
-  Serial.println("In the loop...");
+  if(radio.available()){
+    radio.read(&data, sizeof(payload));
+    lastRecieveTime = millis();
 
-  radio.write(&data, sizeof(payload));
+    Serial.print("Throttle = ");
+    Serial.print(data.thrust);
+    Serial.print(" Yaw = ");
+    Serial.print(data.yaw);
+    Serial.print(" Pitch = ");
+    Serial.print(data.pitch);
+    Serial.print(" Roll = ");
+    Serial.println(data.roll);
+    }
+  
+  delay(100);
 }
