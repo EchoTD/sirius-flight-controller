@@ -17,7 +17,6 @@ GND   -> GND
 -Troubleshooting için bloklar
 -Buzzer ekle
 
-
 */
 
 
@@ -25,41 +24,40 @@ GND   -> GND
 #include <nRF24L01.h>
 #include <RF24.h>
 
-int i = 0;
 
+int i = 0;
 unsigned long lastRecieveTime = 0;
 unsigned long currentTime = 0;
 
-// Radyo setup komutları:
+
+// Radyo setup komutları
 #define CE PA0
 #define CSN PA4
 RF24 radio(CE, CSN);
 const byte address[6] = "00001"; // !!! Sonra değiştir bunu
  
+
 // Alınacak olan verinin kodu
 // NRF24L01 maksimum 32 byte gönderebiliyor, 1 byte = 8 bit, 8 bit max değer = 255
+// uint16_t --> 2 bytes [0-65535]
+// 2 byte çok gelebilir...
 struct payload{
-  byte thrust;
-  byte yaw;
-  byte pitch;
-  byte roll;
+  uint16_t thrust;
+  uint16_t  yaw;
+  uint16_t  pitch;
+  uint16_t  roll;
+// switchler için byte yerine bool kullanmak?
 //  byte switchState1; // For arming
 //  byte switchState2; // For mission mechanism
-//
 };
-
 struct payload data;
 
-void resData(){
-  // Başlangıç ve basit failsafe için değerleri atama
-  data.thrust = 0;
-  data.yaw = 127;
-  data.pitch = 127;
-  data.roll = 127;
-//  data.buttonState1 = 0;
-//  data.buttonState2 = 0;
-}
- 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/**************************************************************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 void setup() {
   Serial.begin(115200);
   delay(100);
@@ -68,17 +66,14 @@ void setup() {
   radio.begin();
   radio.openReadingPipe(0, address);
   radio.startListening();              
-  delay(100);
+  delay(500);
   
   // Pin modları ayarlama
-//  pinMode(button1, INPUT);
-//  pinMode(button2, INPUT);
   pinMode(PC13, OUTPUT); // built-in led
 
   resData();
 
   Serial.println("Setup is done! Going into loop...");
-  
   // Loop döngüsüne girmeden dışarıya bilgi vermek amaçlı
   for(i = 0; i < 3; i++){
     digitalWrite(PC13, HIGH);
@@ -89,7 +84,13 @@ void setup() {
     delay(500);
   }
 }
- 
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/**************************************************************************************************************************************/
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 void loop() {
   currentTime = millis();
   
@@ -113,4 +114,15 @@ void loop() {
     }
   
   delay(100);
+}
+
+
+void resData(){
+  // Başlangıç ve basit failsafe için değerleri atama
+  data.thrust = 0;
+  data.yaw = 127;
+  data.pitch = 127;
+  data.roll = 127;
+//  data.buttonState1 = 0;
+//  data.buttonState2 = 0;
 }
