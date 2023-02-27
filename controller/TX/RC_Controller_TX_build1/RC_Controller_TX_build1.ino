@@ -101,7 +101,15 @@ void loop() {
   // Kumanda üzerindeki komponentlerin sinyallerini çağır
   getInputSignal();
 
-  Serial.println("In the loop...");
+  Serial.print("Throttle = ");
+  Serial.print(data.thrust);
+  Serial.print(" Yaw = ");
+  Serial.print(data.yaw);
+  Serial.print(" Pitch = ");
+  Serial.print(data.pitch);
+  Serial.print(" Roll = ");
+  Serial.println(data.roll);
 
   radio.write(&data, sizeof(payload));
+  delay(100);
 }
