@@ -37,19 +37,21 @@ RF24 radio(CE, CSN);
 const byte address[6] = "00001"; // !!! Sonra değiştir bunu
  
 // Alınacak olan verinin kodu
+// NRF24L01 maksimum 32 byte gönderebiliyor, 1 byte = 8 bit, 8 bit max değer = 255
 struct payload{
   byte thrust;
   byte yaw;
   byte pitch;
   byte roll;
-//  byte buttonState1;
-//  byte buttonState2;
+//  byte switchState1; // For arming
+//  byte switchState2; // For mission mechanism
+//
 };
 
 struct payload data;
 
 void resData(){
-  // Başlangıç değerleri atama
+  // Başlangıç ve basit failsafe için değerleri atama
   data.thrust = 0;
   data.yaw = 127;
   data.pitch = 127;
